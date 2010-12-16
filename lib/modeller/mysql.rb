@@ -1,5 +1,6 @@
 require 'mysql2'
 require 'active_support/core_ext/string'
+require 'modeller/printer'
 
 module Modeller
   class MySql < Modeller::DatabaseAdapter
@@ -12,18 +13,19 @@ module Modeller
       r = []
       get_tables.each do |tablename|
         r << get_table_info( tablename )
-        File.open("#{tablename}.rb", "w") do |f|
-          f.write("class #{tablename.classify} < ActiveRecord::Base\n")
-          f.write("end\n")
-        end
+      end
+      Modeller::Model.create_models(r).each do |model|
+        Modeller::Printer.print_model(model)
       end
     end
 
     def get_tables
+      super
       @client.query("SHOW TABLES").map{|row| row.values.first}
     end
     
     def get_table_info(tablename)
+      super
       child = [tablename]
       results = []
       tbl_stmt = @client.query("SHOW CREATE TABLE #{tablename}").map{|row| row["Create Table"]}.first
