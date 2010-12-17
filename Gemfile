@@ -27,5 +27,9 @@ gem 'mysql2'
 # and rake tasks are available in development mode:
 group :development, :test do
    gem 'webrat'
+   gem 'rspec-rails'
+   gem 'rspec'
+   gem 'cucumber'
+   gem 'cucumber-rails'
    gem 'rails-erd'
 end

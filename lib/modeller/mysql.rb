@@ -9,16 +9,6 @@ module Modeller
       @client = Mysql2::Client.new(:host => host, :username => username, :password => password, :database => database)
     end
     
-    def scan_tables
-      r = []
-      get_tables.each do |tablename|
-        r << get_table_info( tablename )
-      end
-      Modeller::Model.create_models(r).each do |model|
-        Modeller::Printer.print_model(model)
-      end
-    end
-
     def get_tables
       super
       @client.query("SHOW TABLES").map{|row| row.values.first}
