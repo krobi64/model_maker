@@ -1,5 +1,4 @@
 require 'mysql2'
-require 'active_support/core_ext/string'
 require 'modeller/printer'
 
 module Modeller
@@ -26,6 +25,7 @@ module Modeller
       end
       results
     end
+    
   end
 end
       

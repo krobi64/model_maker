@@ -31,5 +31,5 @@ group :development, :test do
    gem 'rspec'
    gem 'cucumber'
    gem 'cucumber-rails'
-   gem 'rails-erd'
+   gem 'spork'
 end

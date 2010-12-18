@@ -24,6 +24,11 @@ module Modeller
     
     def parent(model, index, foreign_key)
       child = @relationships[:child][model].delete
+    end
+    
+    def self.create_models(rlist)
+      result = []
+    end
     
   end
 end
