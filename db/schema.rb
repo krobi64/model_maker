@@ -12,7 +12,13 @@
 
 ActiveRecord::Schema.define(:version => 0) do
 
-  create_table "user", :force => true do |t|
+  create_table "companies", :force => true do |t|
+    t.integer "user_id"
+  end
+
+  add_index "companies", ["user_id"], :name => "test"
+
+  create_table "users", :force => true do |t|
   end
 
 end

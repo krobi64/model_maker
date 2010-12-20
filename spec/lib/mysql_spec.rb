@@ -1,5 +1,6 @@
 require 'spec_helper'
 require 'modeller'
+require 'ruby-debug'
 
 describe 'Modeller::MySql' do
   describe "#new" do
@@ -22,18 +23,13 @@ describe 'Modeller::MySql' do
     describe "#get_tables" do
       it "should return a list of tables in the database" do
         tables = @mysql.get_tables
-        tables.size.should == 2
+        tables.size.should == 3
       end
     end
 
     describe "#get_table_info" do
-      it "should return an empty set for a table with no fk relationships" do
-        fks = @mysql.get_table_info 'user'
-        fks.should be_empty
-      end
-      
-      it "should return a non-zero sized set for a table with at least one fk relationship" do
-        fks = @mysql.get_table_info 'user'
+      it "should return one item for each table" do
+        fks = @mysql.get_table_info 'users'
         fks.should_not be_empty
       end
     end
@@ -47,6 +43,61 @@ describe 'Modeller::MySql' do
       it "should return a set of models" do
         models = @mysql.scan_tables
         models.first.should be_a(Modeller::Model)
+      end
+      
+      it "should return a contain a model with an existing tablename" do
+        models = @mysql.scan_tables
+        models.first.tablename.should == 'companies'
+      end
+      
+      describe "when the table has no foreign keys" do
+        before(:each) do
+          models = @mysql.scan_tables
+          models.each do |model|
+            @user_model = model if model.tablename == 'users'
+          end
+        end
+        
+        it "should return a valid model" do
+          @user_model.should be_a(Modeller::Model)
+        end
+        
+        it "should have an empty one-to-many relationship hash" do
+          @user_model.relationships[:one_to_many].keys.should be_empty
+        end
+        
+        it "should have an empty many_to_many relationship hash" do
+          @user_model.relationships[:many_to_many].keys.should be_empty
+        end
+        
+        it "should have an empty many_to_one relationship hash" do
+          @user_model.relationships[:many_to_one].keys.should be_empty
+        end
+      end
+      
+      describe "when the table has one foreign key (many_to_one)" do
+        before(:each) do
+          debugger
+          models = @mysql.scan_tables
+          models.each do |model|
+            @companies_model = model if model.tablename == 'companies'
+          end
+        end
+        
+        it "should return a valid model" do
+          @companies_model.should be_a(Modeller::Model)
+        end
+        it "should have an empty one-to-many relationship hash" do
+          @companies_model.relationships[:one_to_many].keys.should be_empty
+        end
+        
+        it "should have an empty many_to_many relationship hash" do
+          @companies_model.relationships[:many_to_many].keys.should be_empty
+        end
+        
+        it "should have one item in the many_to_one relationship hash" do
+          @companies_model.relationships[:many_to_one].keys.size.should == 1
+        end
       end
     end
     

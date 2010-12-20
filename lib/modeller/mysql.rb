@@ -19,9 +19,14 @@ module Modeller
       results = []
       tbl_stmt = @client.query("SHOW CREATE TABLE #{tablename}").map{|row| row["Create Table"]}.first
       re = /FOREIGN KEY \(`(\w+)`\) REFERENCES `(\w+)` \(`(\w+)`\)/
-      tbl_stmt.scan(re).each do |fields|
-        temp = child << fields
-        results << temp
+      if tbl_stmt =~ re
+        tbl_stmt.scan(re).each do |fields|
+          temp = child << fields
+          results << temp
+        end
+      else
+        #No parent or child relationships
+        results << [child.first, nil, nil, nil]
       end
       results
     end

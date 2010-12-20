@@ -14,20 +14,44 @@ module Modeller
   end
   
   class Model
-    attr_accessor :tablename, :modelname
+    attr_accessor :tablename, :modelname, :relationships
     
     def initialize(tablename=nil)
       @tablename = tablename
       @modelname = tablename.classify unless tablename.nil?
-      @relationships = {}
+      @relationships = {:one_to_many => {}, :many_to_one => {}, :many_to_many => {}}
     end
     
-    def parent(model, index, foreign_key)
-      child = @relationships[:child][model].delete
+    def has_many(model, index, foreign_key)
+      child = @relationships[:many_to_one].delete(model)
+      if child
+        @relationship[:many_to_many][model] = Modeller::Relationship.new(:many_to_many, model, foreign_key, index )
+      else
+        @relationships[:one_to_many][model] = Modeller::Relationship.new(:many_to_one, model, foreign_key, index )
+      end
+    end
+    
+    def belongs_to(model, index, foreign_key)
+      parent = @relationships[:one_to_many].delete(model)
+      if parent
+        @relationship[:many_to_many][model] = Modeller::Relationship.new(:many_to_many, model, foreign_key, index )
+      else
+        @relationships[:many_to_one][model] = Modeller::Relationship.new(:many_to_one, model, foreign_key, index )
+      end
     end
     
     def self.create_models(rlist)
-      result = []
+      result = {}
+      rlist.each do |item|
+        tablename, foreign_key, parent, index = item.flatten
+        result[tablename] = Modeller::Model.new(tablename)
+        if !parent.nil?
+          result[parent] = Modeller::Model.new(parent) unless result.key?(parent)
+          result[tablename].belongs_to(result[parent], index, foreign_key)
+          result[parent].has_many(self, index, foreign_key)
+        end
+      end
+      result.values
     end
     
   end

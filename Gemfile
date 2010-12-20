@@ -32,4 +32,5 @@ group :development, :test do
    gem 'cucumber'
    gem 'cucumber-rails'
    gem 'spork'
+   gem 'ruby-debug19'
 end
