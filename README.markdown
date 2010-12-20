@@ -8,6 +8,7 @@ This is the very beginning of a project I'm working on to scrub a legacy databas
      b. many_to_many relationships will assume a has_many :through => pattern at first
 
 To be added later:
+
 1. Read from YML file belongs_to_and_has_many vs. has_many :through overrides
 2. Introspect on a pattern to determine which many_to_many configuration to use.
 
