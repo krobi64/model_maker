@@ -54,33 +54,34 @@ describe 'Modeller::MySql' do
         before(:each) do
           models = @mysql.scan_tables
           models.each do |model|
-            @user_model = model if model.tablename == 'users'
+            @schema_model = model if 'schema_migrations' == model.tablename
           end
         end
         
         it "should return a valid model" do
-          @user_model.should be_a(Modeller::Model)
+          @schema_model.should be_a(Modeller::Model)
         end
         
         it "should have an empty one-to-many relationship hash" do
-          @user_model.relationships[:one_to_many].keys.should be_empty
+          @schema_model.relationships[:one_to_many].keys.should be_empty
         end
         
         it "should have an empty many_to_many relationship hash" do
-          @user_model.relationships[:many_to_many].keys.should be_empty
+          @schema_model.relationships[:many_to_many].keys.should be_empty
         end
         
         it "should have an empty many_to_one relationship hash" do
-          @user_model.relationships[:many_to_one].keys.should be_empty
+          @schema_model.relationships[:many_to_one].keys.should be_empty
         end
       end
       
       describe "when the table has one foreign key (many_to_one)" do
         before(:each) do
-          debugger
+          # debugger
           models = @mysql.scan_tables
           models.each do |model|
-            @companies_model = model if model.tablename == 'companies'
+            @companies_model = model if 'companies' == model.tablename
+            @users_model = model if 'users' == model.tablename
           end
         end
         
@@ -91,12 +92,16 @@ describe 'Modeller::MySql' do
           @companies_model.relationships[:one_to_many].keys.should be_empty
         end
         
-        it "should have an empty many_to_many relationship hash" do
+        it "should have an empty many-to-many relationship hash" do
           @companies_model.relationships[:many_to_many].keys.should be_empty
         end
         
-        it "should have one item in the many_to_one relationship hash" do
+        it "should have one item in the many-to-one relationship hash" do
           @companies_model.relationships[:many_to_one].keys.size.should == 1
+        end
+        
+        it "should have a parent with one item in its one-to-many relationship hash" do
+          @users_model.relationships[:one_to_many].keys.size.should == 1
         end
       end
     end

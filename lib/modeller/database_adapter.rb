@@ -12,9 +12,9 @@ module Modeller
       get_tables.each do |tablename|
         r << get_table_info( tablename )
       end
-      Modeller::Model.create_models(r)# .each do |model|
-      #         Modeller::Printer.print_model(model)
-      # end
+      Modeller::Model.create_models(r).each do |model|
+        Modeller::Printer.print_model(model)
+      end
     end
   end
 end
