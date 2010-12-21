@@ -14,6 +14,12 @@ describe "Modeller::DatabaseClient" do
       @client = Modeller::DatabaseClient.get_client
     end
     
+    after(:each) do
+      File.delete("#{Rails.root || "."}/app/models/user.rb")
+      File.delete("#{Rails.root || "."}/app/models/company.rb")
+      File.delete("#{Rails.root || "."}/app/models/schema_migration.rb")
+    end
+    
     it "should return a non-empty list for a database with tables" do
       models = @client.scan_tables
       models.should_not be_empty
