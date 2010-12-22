@@ -13,11 +13,25 @@ module Modeller
     end
   end
   
+  class Table 
+      def initialize( table )
+          @ar = Class.new(ActiveRecord::Base) do
+              set_table_name table
+          end
+      end
+      attr_reader :ar
+  end
+  
+  
   class Model
-    attr_accessor :tablename, :modelname, :filename, :relationships
+    attr_accessor :tablename, :primary_key, :table, :columns, :modelname, :filename, :relationships
     
-    def initialize(tablename=nil)
+    def initialize(tablename, pk=nil)
       @tablename = tablename
+      @primary_key = pk
+      @table = Modeller::Table.new(tablename)
+      @table.ar.primary_key = pk unless pk.nil?
+      @columns = @table.ar.column_names
       @modelname = tablename.classify unless tablename.nil?
       @filename = "#{tablename.singularize}.rb"
       @relationships = {:one_to_many => {}, :many_to_one => {}, :many_to_many => {}}
@@ -43,6 +57,7 @@ module Modeller
     
     def to_s
       stmt = "class #{@modelname} < ActiveRecord::Base\n"
+      stmt << "primary_key '#{@primary_key}'" unless "id" == @primary_key
       @relationships[:one_to_many].each do |k,v|
         stmt << "  has_many :#{v.model.tablename}\n"
       end
@@ -56,12 +71,13 @@ module Modeller
     end
     
     def self.create_models(rlist)
+      return nil unless rlist.is_a?(Array)
       result = {}
       rlist.each do |item|
-        tablename, foreign_key, parent, index = item.flatten
-        result[tablename] = Modeller::Model.new(tablename) unless result.key?(tablename)
+        tablename, primary_key, foreign_key, parent, index = item.flatten
+        result[tablename] = Modeller::Model.new(tablename, primary_key) unless result.key?(tablename)
         if !parent.nil?
-          result[parent] = Modeller::Model.new(parent) unless result.key?(parent)
+          result[parent] = Modeller::Model.new(parent, index) unless result.key?(parent)
           result[tablename].belongs_to(result[parent], index, foreign_key)
           result[parent].has_many(result[tablename], index, foreign_key)
         end

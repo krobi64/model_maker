@@ -1,5 +1,7 @@
 # model_maker
 
+Runs under Rails 3.0
+
 This is the very beginning of a project I'm working on to scrub a legacy database and create ActiveRecord model files from the results. For the first steps, I'm limiting this project to:
 
 1. Only MySql

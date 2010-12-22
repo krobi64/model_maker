@@ -18,9 +18,16 @@ module Modeller
       child = [tablename]
       results = []
       tbl_stmt = @client.query("SHOW CREATE TABLE #{tablename}").map{|row| row["Create Table"]}.first
-      re = /FOREIGN KEY \(`(\w+)`\) REFERENCES `(\w+)` \(`(\w+)`\)/
-      if tbl_stmt =~ re
-        tbl_stmt.scan(re).each do |fields|
+      re1 = /PRIMARY KEY \(`(\w+)`\)/
+      re2 = /FOREIGN KEY \(`(\w+)`\) REFERENCES `(\w+)` \(`(\w+)`\)/
+      if tbl_stmt =~ re1
+        child << $1
+      else
+        child << nil
+      end
+        
+      if tbl_stmt =~ re2
+        tbl_stmt.scan(re2).each do |fields|
           temp = child << fields
           results << temp
         end

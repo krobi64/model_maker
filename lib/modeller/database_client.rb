@@ -16,6 +16,8 @@ module Modeller
       get_tables.each do |tablename|
         r << get_table_info( tablename )
       end
+      # Here is where we should scan for many-to-many relationships... we have a graph of sorts at this point
+      # An array of vertices with directed lists
       Modeller::Model.create_models(r).each do |model|
         Modeller::Printer.print_model(model)
       end
